@@ -1,0 +1,14 @@
+version: '3.4'
+
+volumes:
+  postgres_data:
+
+services:
+  infra:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .envs/aws.env
+    volumes:
+      - .:/infra
