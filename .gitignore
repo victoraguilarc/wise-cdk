@@ -3,6 +3,7 @@ package-lock.json
 __pycache__
 .pytest_cache
 .envs
+.env
 *.egg-info
 .DS_Store
 
