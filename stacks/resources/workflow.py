@@ -8,17 +8,15 @@ from aws_cdk import (
     aws_codepipeline_actions as actions,
 )
 
+from stacks.settings import StackConfig
+
+
 def create_pipeline(
     scope: core.Construct,
     stack_name: str,
     ecr_repository: ecr.Repository,
-    repo_name:str,
-    repo_owner: str,
-    repo_branch: str,
-    artifact_bucket: str,
     app_service: ecs.FargateService,
-    github_access_token: str,
-    enable_deploy_approval: bool = False,
+    config: StackConfig,
     worker_service: ecs.FargateService = None,
 ):
 
@@ -72,10 +70,10 @@ def create_pipeline(
     source_output = codepipeline.Artifact()
     source_action = actions.GitHubSourceAction(
         action_name='Source',
-        owner=repo_owner,
-        repo=repo_name,
-        branch=repo_branch,
-        oauth_token=core.SecretValue.plain_text(github_access_token),
+        owner=config.repo_owner,
+        repo=config.repo_name,
+        branch=config.repo_branch,
+        oauth_token=core.SecretValue.plain_text(config.github_access_token),
         output=source_output,
     )
 
@@ -85,10 +83,10 @@ def create_pipeline(
         project=project,
         input=source_output,
         outputs=[build_output],
-        type=actions.CodeBuildActionType.BUILD
+        type=actions.CodeBuildActionType.BUILD,
     )
 
-    artifact_bucket = s3.Bucket.from_bucket_name(scope, 'artifactBucket', artifact_bucket)
+    artifact_bucket = s3.Bucket.from_bucket_name(scope, 'artifactBucket', config.artifact_bucket)
 
     deploy_actions = [
         actions.EcsDeployAction(
@@ -120,7 +118,7 @@ def create_pipeline(
         stage_name='Build',
         actions=[build_action]
     )
-    if enable_deploy_approval:
+    if config.enable_deploy_approval:
         pipeline.add_stage(
             stage_name='Approval',
             actions=[

@@ -7,6 +7,8 @@ from aws_cdk import (
     core,
 )
 
+from stacks.settings import StackConfig
+
 
 def retrieve_vpc(scope: core.Construct, vpc_name: str):
     return ec2.Vpc.from_lookup(scope, 'vpc', vpc_name=vpc_name)
@@ -89,16 +91,14 @@ def configure_load_balancing(
 def configure_domain(
     scope: core.Construct,
     load_balancer: elbv2.ApplicationLoadBalancer,
-    dns_name: str,
-    dns_zone_id: str,
-    dns_stack_subdomain: str,
+    config: StackConfig,
 ):
     # // DNS record
     zone = route53.HostedZone.from_hosted_zone_attributes(
         scope, 'dns',
-        zone_name=dns_name,
-        hosted_zone_id=dns_zone_id,
+        zone_name=config.dns_name,
+        hosted_zone_id=config.dns_zone_id,
     )
     target = route53.RecordTarget.from_alias(route53_targets.LoadBalancerTarget(load_balancer))
-    route53.ARecord(scope, 'stack-domain', zone=zone, record_name=dns_stack_subdomain, target=target)
+    route53.ARecord(scope, 'stack-domain', zone=zone, record_name=config.dns_stack_subdomain, target=target)
 

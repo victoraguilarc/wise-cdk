@@ -69,10 +69,9 @@ class PlatformStack(core.Stack):
         #  5.  REDIS CACHE
         cache = create_redis_cache(
             scope=self,
-            stack_name=self.stack_name,
             vpc=self.vpc,
-            cache_node_type=self.config.cache_node_type,
-            num_cache_nodes=self.config.num_cache_nodes,
+            stack_name=self.stack_name,
+            config=self.config,
         )
 
         #  6.  DATABASE
@@ -80,11 +79,7 @@ class PlatformStack(core.Stack):
             scope=self,
             stack_name=self.stack_name,
             vpc=self.vpc,
-            database_name=self.config.database_name,
-            database_username=self.config.database_username,
-            database_size=self.config.database_size,
-            database_allocated_storage=self.config.database_allocated_storage,
-            database_encrypted=self.config.database_encrypted,
+            config=self.config,
             ecs_cluster=ecs_cluster,
         )
 
@@ -99,6 +94,9 @@ class PlatformStack(core.Stack):
             log_group=log_group,
             policy=policy,
             s3_bucket=s3_bucket,
+            service_name=self.stack_name,
+            role='app',
+            config=self.config,
         )
         worker_task_definition = create_task_definition(
             scope=self,
@@ -107,21 +105,24 @@ class PlatformStack(core.Stack):
             log_group=log_group,
             policy=policy,
             s3_bucket=s3_bucket,
+            config=self.config,
+            service_name=f'{self.stack_name}-worker',
             role='worker',
-            command=['/worker']
+            command=['/worker'],
         )
 
         #  9.  ECS : Services
         app_service = create_fargate_service(
             scope=self,
-            stack_name=self.stack_name,
+            service_name=self.stack_name,
             ecs_cluster=ecs_cluster,
             task_definition=app_task_definition,
             has_health_check=True,
+            role='app',
         )
         worker_service = create_fargate_service(
             scope=self,
-            stack_name=self.stack_name,
+            service_name=f'{self.stack_name}-worker',
             ecs_cluster=ecs_cluster,
             task_definition=worker_task_definition,
             has_health_check=False,
@@ -149,26 +150,15 @@ class PlatformStack(core.Stack):
         configure_load_balancing(load_balancer, app_service, ssl_certificate=certificate)
 
         #  11.  DNS RECORD
-        configure_domain(
-            scope=self,
-            load_balancer=load_balancer,
-            dns_name=self.config.dns_name,
-            dns_zone_id=self.config.dns_zone_id,
-            dns_stack_subdomain=self.config.dns_stack_subdomain,
-        )
+        configure_domain(scope=self, load_balancer=load_balancer, config=self.config)
 
         #  12.  BUILD PIPELINE
         pipeline = create_pipeline(
             self,
             stack_name=self.stack_name,
-            ecr_repository=ecr_repository,
-            repo_name=self.config.repo_name,
-            repo_owner=self.config.repo_owner,
-            repo_branch=self.config.repo_branch,
-            artifact_bucket=self.config.artifact_bucket,
             app_service=app_service,
-            github_access_token=self.config.github_access_token,
-            worker_service=None,
-            enable_deploy_approval=self.config.enable_deploy_approval,
+            worker_service=worker_service,
+            config=self.config,
+            ecr_repository=ecr_repository,
         )
 

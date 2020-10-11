@@ -11,6 +11,7 @@ AWS_DEFAULT_REGION = env.str('AWS_DEFAULT_REGION')
 
 class StackConfig(object):
     stack_name: str = None
+    stack_label: str = None
     kms_key_uuid: str = None
     cache_node_type: str = None
     num_cache_nodes: int = None
@@ -29,10 +30,12 @@ class StackConfig(object):
     dns_stack_subdomain: str = None
     github_access_token: str = None
     enable_deploy_approval: bool = False
+    datadog_api_key: str = None
 
     def __init__(
         self,
         stack_name: str,
+        stack_label: str,
         kms_key_uuid: str,
         cache_node_type: str,
         num_cache_nodes: int,
@@ -51,8 +54,10 @@ class StackConfig(object):
         dns_stack_subdomain: str,
         github_access_token: str,
         enable_deploy_approval: bool,
+        datadog_api_key: str,
     ):
         self.stack_name = stack_name
+        self.stack_label = stack_label
         self.kms_key_uuid = kms_key_uuid
         self.cache_node_type = cache_node_type
         self.num_cache_nodes = num_cache_nodes
@@ -71,6 +76,7 @@ class StackConfig(object):
         self.dns_stack_subdomain = dns_stack_subdomain
         self.github_access_token = github_access_token
         self.enable_deploy_approval = enable_deploy_approval
+        self.datadog_api_key = datadog_api_key
 
     @classmethod
     def get_configs(cls, config_file='./cdk.stacks.json') -> List["StackConfig"]:

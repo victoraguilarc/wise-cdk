@@ -1,10 +1,14 @@
 # Wise CDK
 
-Infraestructure as code to build and deploy `django-wise` projects to AWS using:  
+Infra as code to build/deploy `django-wise` projects into AWS using:  
+- VPC
 - RDS (Postgres)
 - Elasticache (Redis)
 - ECS Fargate
 - S3 Bucket for statics
+- Datadog for Tracing
+- CloudWatch for Logging
+- CodeBuild/CodePipeline for Deployments
 
 > This project is focused in deployment only. all testing/linting and pre deploy tasks should be managed in another engines, 
 > I recommend you Github Actions.
@@ -67,19 +71,19 @@ One you have all of this, exec the build command.
 make build
 ```
 
-#### 4. Usage
-1. Deploy VPC first
+#### 4. Deplloyment
+1. Check changes
+    ```
+    $ make diff STACK=<stack-name>
+    ```
+2. Deploy VPC
 
     ```
     $ make deploy STACK=<stack-name>-vpc
     ```
-2. Deploy Main Stack
+3. Deploy Main Stack
     ```
     $ make deploy STACK=<stack-name>
-    ```
-3. Check camges
-    ```
-    $ make diff STACK=<stack-name>
     ```
 
 ## Environment Variables Management
@@ -95,6 +99,6 @@ To configure `chamber ` you need to do the following:
 
 ### Pending Guides
 
-1, How to setup domain in `Route53`?
-2. How to setup SSL Certificates in `Certificate Manager`?
-5. How to get github access token?
+ 1. How to setup domain in `Route53`?
+ 2. How to setup SSL Certificates in `Certificate Manager`?
+ 3. How to get github access token?

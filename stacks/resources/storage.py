@@ -11,6 +11,8 @@ from aws_cdk import (
 from aws_cdk.aws_ec2 import IVpc
 from aws_cdk.core import RemovalPolicy
 
+from stacks.settings import StackConfig
+
 
 def create_bucket(scope: core.Construct, stack_name: str):
     return s3.Bucket(
@@ -21,7 +23,7 @@ def create_bucket(scope: core.Construct, stack_name: str):
     )
 
 
-def create_redis_cache(scope: core.Construct, stack_name: str, vpc: IVpc, cache_node_type: str, num_cache_nodes: int):
+def create_redis_cache(scope: core.Construct, stack_name: str, vpc: IVpc, config: StackConfig):
     subnet_ids = vpc.select_subnets(subnet_type=ec2.SubnetType.PRIVATE).subnet_ids
 
     cache_subnet_group = elasticache.CfnSubnetGroup(
@@ -41,8 +43,8 @@ def create_redis_cache(scope: core.Construct, stack_name: str, vpc: IVpc, cache_
         scope, 'elasticache',
         cluster_name=stack_name,
         engine='redis', port=6379,
-        cache_node_type=cache_node_type,
-        num_cache_nodes=num_cache_nodes,
+        cache_node_type=config.cache_node_type,
+        num_cache_nodes=config.num_cache_nodes,
         cache_subnet_group_name=cache_subnet_group.cache_subnet_group_name,
         vpc_security_group_ids=[cache_security_group.security_group_id],
     )
@@ -116,12 +118,9 @@ def create_rds_cluster(
 
 def create_rds_instance(
     scope: core.Construct,
-    stack_name: str, vpc: IVpc,
-    database_name: str,
-    database_username: str,
-    database_size: str,
-    database_allocated_storage: int,
-    database_encrypted: bool,
+    stack_name: str,
+    vpc: IVpc,
+    config: StackConfig,
     ecs_cluster: ecs.Cluster,
 ):
     database = rds.DatabaseInstance(
@@ -131,11 +130,11 @@ def create_rds_instance(
             version=rds.PostgresEngineVersion.VER_11
         ),
         port=5432,
-        credentials=rds.Credentials.from_username(database_username),
+        credentials=rds.Credentials.from_username(config.database_username),
         instance_identifier=stack_name,
-        instance_type=ec2.InstanceType(database_size),
-        database_name=database_name,
-        allocated_storage=database_allocated_storage,
+        instance_type=ec2.InstanceType(config.database_size),
+        database_name=config.database_name,
+        allocated_storage=config.database_allocated_storage,
         multi_az=False,
         allow_major_version_upgrade=False,
         delete_automated_backups=True,
@@ -143,7 +142,7 @@ def create_rds_instance(
         auto_minor_version_upgrade=False,
         backup_retention=core.Duration.days(5),
         enable_performance_insights=True,
-        storage_encrypted=database_encrypted,
+        storage_encrypted=config.database_encrypted,
         vpc_placement=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
     )
     database.connections.allow_default_port_from(ecs_cluster)
