@@ -147,6 +147,7 @@ def create_fargate_service(
     service_name: str,
     ecs_cluster: ecs.Cluster,
     task_definition: ecs.TaskDefinition,
+    desired_count: int,
     role: str,
     has_health_check: bool = False,
 ):
@@ -161,7 +162,7 @@ def create_fargate_service(
         cluster=ecs_cluster,
         task_definition=task_definition,
         assign_public_ip=False,
-        desired_count=1,
+        desired_count=desired_count,
         max_healthy_percent=100,
         min_healthy_percent=0,
         vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE),

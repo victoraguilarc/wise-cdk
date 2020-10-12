@@ -117,6 +117,7 @@ class PlatformStack(core.Stack):
             service_name=self.stack_name,
             ecs_cluster=ecs_cluster,
             task_definition=app_task_definition,
+            desired_count=self.config.desired_app_count,
             has_health_check=True,
             role='app',
         )
@@ -125,6 +126,7 @@ class PlatformStack(core.Stack):
             service_name=f'{self.stack_name}-worker',
             ecs_cluster=ecs_cluster,
             task_definition=worker_task_definition,
+            desired_count=self.config.desired_worker_count,
             has_health_check=False,
             role='worker',
         )
@@ -134,6 +136,7 @@ class PlatformStack(core.Stack):
         database.connections.allow_from(worker_service, port_range=ec2.Port.tcp(5432))
         database.secret.grant_read(app_task_definition.obtain_execution_role())
         database.secret.grant_read(worker_task_definition.obtain_execution_role())
+        database.connections.allow_from_any_ipv4(ec2.Port.tcp(5432))  # It makes accesible in internet
 
         s3_bucket.grant_public_access()
 

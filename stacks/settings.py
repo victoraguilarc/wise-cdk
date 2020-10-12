@@ -31,6 +31,8 @@ class StackConfig(object):
     github_access_token: str = None
     enable_deploy_approval: bool = False
     datadog_api_key: str = None
+    desired_app_count: int = None
+    desired_worker_count: int = None
 
     def __init__(
         self,
@@ -55,6 +57,8 @@ class StackConfig(object):
         github_access_token: str,
         enable_deploy_approval: bool,
         datadog_api_key: str,
+        desired_app_count: int,
+        desired_worker_count: int,
     ):
         self.stack_name = stack_name
         self.stack_label = stack_label
@@ -77,6 +81,8 @@ class StackConfig(object):
         self.github_access_token = github_access_token
         self.enable_deploy_approval = enable_deploy_approval
         self.datadog_api_key = datadog_api_key
+        self.desired_app_count = desired_app_count
+        self.desired_worker_count = desired_worker_count
 
     @classmethod
     def get_configs(cls, config_file='./cdk.stacks.json') -> List["StackConfig"]:

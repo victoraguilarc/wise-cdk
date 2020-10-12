@@ -14,5 +14,6 @@ aws_cdk.aws_secretsmanager==1.67.0
 aws_cdk.aws_elasticloadbalancingv2==1.67.0
 aws_cdk.aws_codepipeline_actions==1.67.0
 django-environ==0.4.5
+fabric2==2.5.0
 
 

@@ -143,9 +143,9 @@ def create_rds_instance(
         backup_retention=core.Duration.days(5),
         enable_performance_insights=True,
         storage_encrypted=config.database_encrypted,
+
         vpc_placement=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
     )
-    database.connections.allow_default_port_from(ecs_cluster)
 
     core.CfnOutput(
         scope=scope,

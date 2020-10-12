@@ -97,6 +97,23 @@ To configure `chamber ` you need to do the following:
 3. Copy its `Key ID` and use it in the **`cdk.stacks.json`** config file for `kms_key_uuid` key.
 
 
+### Common Issues
+
+`S3` may need a `cors` configuration:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+<CORSRule>
+    <AllowedOrigin>*</AllowedOrigin>
+    <AllowedMethod>GET</AllowedMethod>
+    <AllowedMethod>HEAD</AllowedMethod>
+    <MaxAgeSeconds>3000</MaxAgeSeconds>
+    <AllowedHeader>Authorization</AllowedHeader>
+</CORSRule>
+</CORSConfiguration>
+``` 
+
 ### Pending Guides
 
  1. How to setup domain in `Route53`?
