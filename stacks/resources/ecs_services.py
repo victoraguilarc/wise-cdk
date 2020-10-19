@@ -163,13 +163,14 @@ def create_fargate_service(
         task_definition=task_definition,
         assign_public_ip=False,
         desired_count=desired_count,
-        max_healthy_percent=100,
+        max_healthy_percent=200,  # it makes zero downtime deployment
         min_healthy_percent=0,
         vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE),
         **service_props,
     )
     scaling = service.auto_scale_task_count(
-        max_capacity=5
+        min_capacity=desired_count,
+        max_capacity=10,
     )
     scaling.scale_on_cpu_utilization(
         'CpuScaling',
