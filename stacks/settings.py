@@ -33,6 +33,8 @@ class StackConfig(object):
     datadog_api_key: str = None
     desired_app_count: int = None
     desired_worker_count: int = None
+    docker_user: str = None
+    docker_password: str = None
 
     def __init__(
         self,
@@ -59,6 +61,8 @@ class StackConfig(object):
         datadog_api_key: str,
         desired_app_count: int,
         desired_worker_count: int,
+        docker_user: str,
+        docker_password: str,
     ):
         self.stack_name = stack_name
         self.stack_label = stack_label
@@ -83,6 +87,8 @@ class StackConfig(object):
         self.datadog_api_key = datadog_api_key
         self.desired_app_count = desired_app_count
         self.desired_worker_count = desired_worker_count
+        self.docker_user = docker_user
+        self.docker_password = docker_password
 
     @classmethod
     def get_configs(cls, config_file='./cdk.stacks.json') -> List["StackConfig"]:

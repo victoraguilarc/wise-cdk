@@ -47,6 +47,7 @@ def create_pipeline(
                 },
                 'build': {
                     'commands': [
+                        f'docker login -u="{config.docker_user}" -p="{config.docker_password}"',
                         'docker build -f Dockerfile.prod -t ${IMAGE_LATEST} .',
                         'docker tag ${IMAGE_LATEST} ${IMAGE_VERSION}'
                     ]
